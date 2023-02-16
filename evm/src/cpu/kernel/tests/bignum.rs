@@ -99,6 +99,70 @@ fn prepare_two_bignums_diff(bit_size: usize) -> (BigUint, BigUint, U256, Vec<U25
     (a, b, length, memory)
 }
 
+fn prepare_three_bignums_random(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let a = gen_bignum(bits_1);
+    let b = gen_bignum(bits_2);
+    let c = gen_bignum(bits_3);
+    let length: U256 = bignum_len(&a)
+        .max(bignum_len(&b))
+        .max(bignum_len(&c))
+        .into();
+    let mut memory = pack_bignums(
+        &[a.clone(), b.clone(), c.clone()],
+        length.try_into().unwrap(),
+    );
+
+    (a, b, c, length, memory)
+}
+
+fn prepare_three_bignums_max(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let a = BigUint::one() << (bits_1 - 1);
+    let b = BigUint::one() << (bits_2 - 1);
+    let c = BigUint::one() << (bits_3 - 1);
+    let length: U256 = bignum_len(&a)
+        .max(bignum_len(&b))
+        .max(bignum_len(&c))
+        .into();
+    let mut memory = pack_bignums(
+        &[a.clone(), b.clone(), c.clone()],
+        length.try_into().unwrap(),
+    );
+
+    (a, b, c, length, memory)
+}
+
+fn prepare_three_bignums_min(_bits_1: usize, _bits_2: usize, _bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let a = BigUint::zero();
+    let b = BigUint::zero();
+    let c = BigUint::zero();
+    let length: U256 = bignum_len(&a)
+        .max(bignum_len(&b))
+        .max(bignum_len(&c))
+        .into();
+    let mut memory = pack_bignums(
+        &[a.clone(), b.clone(), c.clone()],
+        length.try_into().unwrap(),
+    );
+
+    (a, b, c, length, memory)
+}
+
+fn prepare_three_bignums_diff(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let a = BigUint::one() << (bits_1 - 1);
+    let b = BigUint::zero();
+    let c = BigUint::one() << (bits_3 - 1);
+    let length: U256 = bignum_len(&a)
+        .max(bignum_len(&b))
+        .max(bignum_len(&c))
+        .into();
+    let mut memory = pack_bignums(
+        &[a.clone(), b.clone(), c.clone()],
+        length.try_into().unwrap(),
+    );
+
+    (a, b, c, length, memory)
+}
+
 fn test_shr_bignum<F>(prepare_bignum_fn: &F) -> Result<()>
 where
     F: Fn(usize) -> (BigUint, U256, Vec<U256>),
@@ -317,6 +381,124 @@ where
     Ok(())
 }
 
+fn test_modmul_bignum<F>(prepare_three_bignums_fn: &F) -> Result<()>
+where F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let (a, b, m, length, mut memory) = prepare_three_bignums_fn(1000, 1000, 1000);
+
+    // Determine expected result.
+    let result = (a * b) % m;
+    let expected_result: Vec<U256> = biguint_to_mem_vec(result);
+
+    // Output and scratch space locations (initialized as zeroes) follow a and b in memory.
+    let a_start_loc = 0.into();
+    let b_start_loc = length;
+    let m_start_loc = length * 2;
+    let output_loc = length * 3;
+    let scratch_1 = length * 4;
+    let scratch_2 = length * 5;
+    let scratch_3 = length * 7;
+    let scratch_4 = length * 9;
+
+    memory.resize(length.as_usize() * 10, 0.into());
+
+    // Prepare stack.
+    let retdest = 0xDEADBEEFu32.into();
+    let mut initial_stack: Vec<U256> = vec![
+        length,
+        a_start_loc,
+        b_start_loc,
+        m_start_loc,
+        output_loc,
+        scratch_1,
+        scratch_2,
+        scratch_3,
+        scratch_4,
+        retdest,
+    ];
+    initial_stack.reverse();
+
+    // Prepare interpreter.
+    let modmul_bignum = KERNEL.global_labels["modmul_bignum"];
+    let mut interpreter = Interpreter::new_with_kernel(modmul_bignum, initial_stack);
+    interpreter.set_kernel_general_memory(memory);
+
+    // Run modmul function.
+    interpreter.run()?;
+
+    // Determine actual result.
+    let new_memory = interpreter.get_kernel_general_memory();
+    let output_location: usize = output_loc.try_into().unwrap();
+    let actual_result: Vec<_> =
+        new_memory[output_location..output_location + expected_result.len()].into();
+
+    assert_eq!(actual_result, expected_result);
+    dbg!(actual_result);
+    dbg!(expected_result);
+
+    Ok(())
+}
+
+fn test_modexp_bignum<F>(prepare_three_bignums_fn: &F) -> Result<()>
+where F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+    let (b, e, m, length, mut memory) = prepare_three_bignums_fn(1000, 150, 1000);
+
+    // Determine expected result.
+    let result = b.modpow(&e, &m);
+    let expected_result: Vec<U256> = biguint_to_mem_vec(result);
+
+    // Output and scratch space locations (initialized as zeroes) follow a and b in memory.
+    let b_start_loc = 0.into();
+    let e_start_loc = length;
+    let m_start_loc = length * 2;
+    let output_loc = length * 3;
+    let scratch_1 = length * 4;
+    let scratch_2 = length * 5;
+    let scratch_3 = length * 7;
+    let scratch_4 = length * 9;
+    let scratch_5 = length * 11;
+    let scratch_6 = length * 13;
+
+    memory.resize(length.as_usize() * 14, 0.into());
+
+    // Prepare stack.
+    let retdest = 0xDEADBEEFu32.into();
+    let mut initial_stack: Vec<U256> = vec![
+        length,
+        b_start_loc,
+        e_start_loc,
+        m_start_loc,
+        output_loc,
+        scratch_1,
+        scratch_2,
+        scratch_3,
+        scratch_4,
+        scratch_5,
+        scratch_6,
+        retdest,
+    ];
+    initial_stack.reverse();
+
+    // Prepare interpreter.
+    let modexp_bignum = KERNEL.global_labels["modexp_bignum"];
+    let mut interpreter = Interpreter::new_with_kernel(modexp_bignum, initial_stack);
+    interpreter.set_kernel_general_memory(memory);
+
+    // Run modexp function.
+    interpreter.run()?;
+
+    // Determine actual result.
+    let new_memory = interpreter.get_kernel_general_memory();
+    let output_location: usize = output_loc.try_into().unwrap();
+    let actual_result: Vec<_> =
+        new_memory[output_location..output_location + expected_result.len()].into();
+
+    dbg!(interpreter.stack());
+
+    assert_eq!(actual_result, expected_result);
+
+    Ok(())
+}
+
 #[test]
 fn test_shr_bignum_all() -> Result<()> {
     test_shr_bignum(&prepare_bignum_random)?;
@@ -371,6 +553,26 @@ fn test_mul_bignum_all() -> Result<()> {
     test_mul_bignum(&prepare_two_bignums_max)?;
     test_mul_bignum(&prepare_two_bignums_min)?;
     test_mul_bignum(&prepare_two_bignums_diff)?;
+
+    Ok(())
+}
+
+#[test]
+fn test_modmul_bignum_all() -> Result<()> {
+    test_modmul_bignum(&prepare_three_bignums_random)?;
+    test_modmul_bignum(&prepare_three_bignums_max)?;
+    test_modmul_bignum(&prepare_three_bignums_min)?;
+    test_modmul_bignum(&prepare_three_bignums_diff)?;
+
+    Ok(())
+}
+
+#[test]
+fn test_modexp_bignum_all() -> Result<()> {
+    test_modexp_bignum(&prepare_three_bignums_random)?;
+    test_modexp_bignum(&prepare_three_bignums_max)?;
+    test_modexp_bignum(&prepare_three_bignums_min)?;
+    test_modexp_bignum(&prepare_three_bignums_diff)?;
 
     Ok(())
 }
