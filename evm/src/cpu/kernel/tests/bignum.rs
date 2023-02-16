@@ -99,7 +99,11 @@ fn prepare_two_bignums_diff(bit_size: usize) -> (BigUint, BigUint, U256, Vec<U25
     (a, b, length, memory)
 }
 
-fn prepare_three_bignums_random(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+fn prepare_three_bignums_random(
+    bits_1: usize,
+    bits_2: usize,
+    bits_3: usize,
+) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
     let a = gen_bignum(bits_1);
     let b = gen_bignum(bits_2);
     let c = gen_bignum(bits_3);
@@ -107,7 +111,7 @@ fn prepare_three_bignums_random(bits_1: usize, bits_2: usize, bits_3: usize) -> 
         .max(bignum_len(&b))
         .max(bignum_len(&c))
         .into();
-    let mut memory = pack_bignums(
+    let memory = pack_bignums(
         &[a.clone(), b.clone(), c.clone()],
         length.try_into().unwrap(),
     );
@@ -115,7 +119,11 @@ fn prepare_three_bignums_random(bits_1: usize, bits_2: usize, bits_3: usize) -> 
     (a, b, c, length, memory)
 }
 
-fn prepare_three_bignums_max(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+fn prepare_three_bignums_max(
+    bits_1: usize,
+    bits_2: usize,
+    bits_3: usize,
+) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
     let a = BigUint::one() << (bits_1 - 1);
     let b = BigUint::one() << (bits_2 - 1);
     let c = BigUint::one() << (bits_3 - 1);
@@ -123,7 +131,7 @@ fn prepare_three_bignums_max(bits_1: usize, bits_2: usize, bits_3: usize) -> (Bi
         .max(bignum_len(&b))
         .max(bignum_len(&c))
         .into();
-    let mut memory = pack_bignums(
+    let memory = pack_bignums(
         &[a.clone(), b.clone(), c.clone()],
         length.try_into().unwrap(),
     );
@@ -131,7 +139,11 @@ fn prepare_three_bignums_max(bits_1: usize, bits_2: usize, bits_3: usize) -> (Bi
     (a, b, c, length, memory)
 }
 
-fn prepare_three_bignums_min(_bits_1: usize, _bits_2: usize, _bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+fn prepare_three_bignums_min(
+    _bits_1: usize,
+    _bits_2: usize,
+    _bits_3: usize,
+) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
     let a = BigUint::zero();
     let b = BigUint::zero();
     let c = BigUint::zero();
@@ -139,7 +151,7 @@ fn prepare_three_bignums_min(_bits_1: usize, _bits_2: usize, _bits_3: usize) -> 
         .max(bignum_len(&b))
         .max(bignum_len(&c))
         .into();
-    let mut memory = pack_bignums(
+    let memory = pack_bignums(
         &[a.clone(), b.clone(), c.clone()],
         length.try_into().unwrap(),
     );
@@ -147,7 +159,11 @@ fn prepare_three_bignums_min(_bits_1: usize, _bits_2: usize, _bits_3: usize) -> 
     (a, b, c, length, memory)
 }
 
-fn prepare_three_bignums_diff(bits_1: usize, bits_2: usize, bits_3: usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+fn prepare_three_bignums_diff(
+    bits_1: usize,
+    _bits_2: usize,
+    bits_3: usize,
+) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
     let a = BigUint::one() << (bits_1 - 1);
     let b = BigUint::zero();
     let c = BigUint::one() << (bits_3 - 1);
@@ -155,7 +171,7 @@ fn prepare_three_bignums_diff(bits_1: usize, bits_2: usize, bits_3: usize) -> (B
         .max(bignum_len(&b))
         .max(bignum_len(&c))
         .into();
-    let mut memory = pack_bignums(
+    let memory = pack_bignums(
         &[a.clone(), b.clone(), c.clone()],
         length.try_into().unwrap(),
     );
@@ -382,7 +398,9 @@ where
 }
 
 fn test_modmul_bignum<F>(prepare_three_bignums_fn: &F) -> Result<()>
-where F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+where
+    F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>),
+{
     let (a, b, m, length, mut memory) = prepare_three_bignums_fn(1000, 1000, 1000);
 
     // Determine expected result.
@@ -439,7 +457,9 @@ where F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>)
 }
 
 fn test_modexp_bignum<F>(prepare_three_bignums_fn: &F) -> Result<()>
-where F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>) {
+where
+    F: Fn(usize, usize, usize) -> (BigUint, BigUint, BigUint, U256, Vec<U256>),
+{
     let (b, e, m, length, mut memory) = prepare_three_bignums_fn(1000, 150, 1000);
 
     // Determine expected result.
