@@ -386,7 +386,6 @@ where
     // Determine expected result.
     let result = (a * b) % m;
     let expected_result: Vec<U256> = biguint_to_mem_vec(result);
-    dbg!(expected_result.clone());
 
     // Output and scratch space locations (initialized as zeroes) follow a and b in memory.
     let a_start_loc = 0.into();
@@ -396,7 +395,6 @@ where
     let scratch_1 = length * 4;
     let scratch_2 = length * 5;
     let scratch_3 = length * 7;
-    let scratch_4 = length * 9;
 
     memory.resize(length.as_usize() * 10, 0.into());
 
@@ -411,7 +409,6 @@ where
         scratch_1,
         scratch_2,
         scratch_3,
-        scratch_4,
         retdest,
     ];
     initial_stack.reverse();
@@ -428,15 +425,11 @@ where
 
     // Determine actual result.
     let new_memory = interpreter.get_kernel_general_memory();
-    dbg!(new_memory.clone());
     let output_location: usize = output_loc.try_into().unwrap();
-    dbg!(output_location);
     let actual_result: Vec<_> =
         new_memory[output_location..output_location + expected_result.len()].into();
 
     assert_eq!(actual_result, expected_result);
-    dbg!(actual_result);
-    dbg!(expected_result);
 
     Ok(())
 }
@@ -565,8 +558,8 @@ fn test_mul_bignum_all() -> Result<()> {
 #[test]
 fn test_modmul_bignum_all() -> Result<()> {
     test_modmul_bignum(&prepare_three_bignums_random)?;
-    // test_modmul_bignum(&prepare_three_bignums_max)?;
-    // test_modmul_bignum(&prepare_three_bignums_diff)?;
+    test_modmul_bignum(&prepare_three_bignums_max)?;
+    test_modmul_bignum(&prepare_three_bignums_diff)?;
 
     Ok(())
 }
