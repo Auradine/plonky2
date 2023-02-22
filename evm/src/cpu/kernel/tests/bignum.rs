@@ -396,7 +396,7 @@ where
     let scratch_2 = length * 5;
     let scratch_3 = length * 7;
 
-    memory.resize(length.as_usize() * 10, 0.into());
+    memory.resize(length.as_usize() * 8, 0.into());
 
     // Prepare stack.
     let retdest = 0xDEADBEEFu32.into();
@@ -420,8 +420,6 @@ where
 
     // Run modmul function.
     interpreter.run()?;
-
-    dbg!(interpreter.stack());
 
     // Determine actual result.
     let new_memory = interpreter.get_kernel_general_memory();
@@ -454,9 +452,8 @@ where
     let scratch_3 = length * 7;
     let scratch_4 = length * 9;
     let scratch_5 = length * 11;
-    let scratch_6 = length * 13;
 
-    memory.resize(length.as_usize() * 14, 0.into());
+    memory.resize(length.as_usize() * 12, 0.into());
 
     // Prepare stack.
     let retdest = 0xDEADBEEFu32.into();
@@ -471,7 +468,6 @@ where
         scratch_3,
         scratch_4,
         scratch_5,
-        scratch_6,
         retdest,
     ];
     initial_stack.reverse();
@@ -489,8 +485,6 @@ where
     let output_location: usize = output_loc.try_into().unwrap();
     let actual_result: Vec<_> =
         new_memory[output_location..output_location + expected_result.len()].into();
-
-    dbg!(interpreter.stack());
 
     assert_eq!(actual_result, expected_result);
 
