@@ -227,10 +227,9 @@ compression_loop:
     PUSH 0
     %mload_kernel_general
     // stack: num_blocks, cur_block + 1, h_0', h_1', h_2', h_3', h_4', h_5', h_6', h_7', cur_block + 1, retdest
-    EQ
-    // stack: last_block, h_0', h_1', h_2', h_3', h_4', h_5', h_6', h_7', cur_block + 1, retdest
-    %jumpi(compression_end)
-    %jump(compression_loop)
+    GT
+    // stack: not_last_block, h_0', h_1', h_2', h_3', h_4', h_5', h_6', h_7', cur_block + 1, retdest
+    %jumpi(compression_loop)
 compression_end:
     // stack: h_0', h_1', h_2', h_3', h_4', h_5', h_6', h_7', cur_block + 1, retdest
 
