@@ -1,21 +1,16 @@
 use std::marker::PhantomData;
 
-use plonky2::field::{polynomial::PolynomialValues, types::Field};
-use plonky2::{
-    field::{
-        extension::{Extendable, FieldExtension},
-        packed::PackedField,
-    },
-    hash::hash_types::RichField,
-    plonk::circuit_builder::CircuitBuilder,
-};
+use plonky2::field::extension::{Extendable, FieldExtension};
+use plonky2::field::packed::PackedField;
+use plonky2::field::polynomial::PolynomialValues;
+use plonky2::field::types::Field;
+use plonky2::hash::hash_types::RichField;
+use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2_util::log2_ceil;
 
-use crate::{
-    constraint_consumer::{ConstraintConsumer, RecursiveConstraintConsumer},
-    stark::Stark,
-    vars::{StarkEvaluationTargets, StarkEvaluationVars},
-};
+use crate::constraint_consumer::{ConstraintConsumer, RecursiveConstraintConsumer};
+use crate::stark::Stark;
+use crate::vars::{StarkEvaluationTargets, StarkEvaluationVars};
 
 pub mod constants;
 pub mod generation;
@@ -84,15 +79,18 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
         let is_hash_start = curr_row[step_bit(0)];
         for i in 0..8 {
             // degree 3
-            yield_constr
-                .constraint(is_hash_start * (curr_row[h_i(i)] - FE::from_canonical_u32(HASH_IV[i])));
+            yield_constr.constraint(
+                is_hash_start * (curr_row[h_i(i)] - FE::from_canonical_u32(HASH_IV[i])),
+            );
         }
 
         // ensure his stay the same outside last two rows of hash
         let his_should_change = next_row[step_bit(64)] + curr_row[step_bit(64)];
         for i in 0..8 {
             // degree 2
-            yield_constr.constraint_transition((P::ONES - his_should_change) * (next_row[h_i(i)] - curr_row[h_i(i)]));
+            yield_constr.constraint_transition(
+                (P::ONES - his_should_change) * (next_row[h_i(i)] - curr_row[h_i(i)]),
+            );
         }
 
         let next_is_phase_0: P = (0..16).map(|i| next_row[step_bit(i)]).sum();
@@ -156,7 +154,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
                 curr_row[e_bit((bit + 11) % 32)],
             );
             // degree 3
-            yield_constr.constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(2, bit)] - computed_bit));
+            yield_constr
+                .constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(2, bit)] - computed_bit));
 
             let computed_bit = xor_gen(
                 curr_row[xor_tmp_i_bit(2, bit)],
@@ -174,7 +173,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
 
             let computed_bit = (P::ONES - curr_row[e_bit(bit)]) * curr_row[g_bit(bit)];
             // degree 3
-            yield_constr.constraint(is_phase_0_or_1 * (curr_row[not_e_and_g_bit(bit)] - computed_bit));
+            yield_constr
+                .constraint(is_phase_0_or_1 * (curr_row[not_e_and_g_bit(bit)] - computed_bit));
 
             let computed_bit = xor_gen(curr_row[e_and_f_bit(bit)], curr_row[not_e_and_g_bit(bit)]);
             // degree 3
@@ -188,7 +188,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
                 curr_row[a_bit((bit + 13) % 32)],
             );
             // degree 3
-            yield_constr.constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(3, bit)] - computed_bit));
+            yield_constr
+                .constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(3, bit)] - computed_bit));
 
             let computed_bit = xor_gen(
                 curr_row[xor_tmp_i_bit(3, bit)],
@@ -220,7 +221,8 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
 
             let computed_bit = xor_gen(curr_row[a_and_b_bit(bit)], curr_row[a_and_c_bit(bit)]);
             // degree 3
-            yield_constr.constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(4, bit)] - computed_bit));
+            yield_constr
+                .constraint(is_phase_0_or_1 * (curr_row[xor_tmp_i_bit(4, bit)] - computed_bit));
 
             let computed_bit = xor_gen(curr_row[xor_tmp_i_bit(4, bit)], curr_row[b_and_c_bit(bit)]);
             // degree 3
@@ -285,18 +287,24 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
         // b := a
         for bit in 0..32 {
             // degree 2
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[h_bit(bit)] - curr_row[g_bit(bit)]));
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[g_bit(bit)] - curr_row[f_bit(bit)]));
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[f_bit(bit)] - curr_row[e_bit(bit)]));
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[d_bit(bit)] - curr_row[c_bit(bit)]));
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[c_bit(bit)] - curr_row[b_bit(bit)]));
-            yield_constr
-                .constraint_transition(is_phase_0_or_1 * (next_row[b_bit(bit)] - curr_row[a_bit(bit)]));
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[h_bit(bit)] - curr_row[g_bit(bit)]),
+            );
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[g_bit(bit)] - curr_row[f_bit(bit)]),
+            );
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[f_bit(bit)] - curr_row[e_bit(bit)]),
+            );
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[d_bit(bit)] - curr_row[c_bit(bit)]),
+            );
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[c_bit(bit)] - curr_row[b_bit(bit)]),
+            );
+            yield_constr.constraint_transition(
+                is_phase_0_or_1 * (next_row[b_bit(bit)] - curr_row[a_bit(bit)]),
+            );
         }
 
         // update his in last step of phase 1

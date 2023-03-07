@@ -3,7 +3,8 @@
 use core::convert::TryInto;
 
 use arrayref::{array_mut_ref, array_ref};
-use plonky2::field::{polynomial::PolynomialValues, types::Field};
+use plonky2_field::polynomial::PolynomialValues;
+use plonky2_field::types::Field;
 
 use super::constants::{HASH_IV, ROUND_CONSTANTS};
 use crate::sha256_stark::layout::*;
@@ -453,7 +454,8 @@ fn rotr(x: u32, n: u32) -> u32 {
 
 #[cfg(test)]
 mod tests {
-    use generic_array::{typenum::U64, GenericArray};
+    use generic_array::typenum::U64;
+    use generic_array::GenericArray;
     use plonky2_field::goldilocks_field::GoldilocksField;
     use sha2::compress256;
 

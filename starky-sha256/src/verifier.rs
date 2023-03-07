@@ -187,7 +187,7 @@ fn check_permutation_options<
 mod tests {
     use plonky2::field::goldilocks_field::GoldilocksField;
     use plonky2::field::polynomial::PolynomialValues;
-    use plonky2::field::types::Field;
+    use plonky2_field::types::Sample;
 
     use crate::verifier::eval_l_1_and_l_last;
 

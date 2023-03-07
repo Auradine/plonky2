@@ -12,8 +12,7 @@ use plonky2_util::ceil_div_usize;
 use crate::config::StarkConfig;
 use crate::constraint_consumer::{ConstraintConsumer, RecursiveConstraintConsumer};
 use crate::permutation::PermutationPair;
-use crate::vars::StarkEvaluationTargets;
-use crate::vars::StarkEvaluationVars;
+use crate::vars::{StarkEvaluationTargets, StarkEvaluationVars};
 
 /// Represents a STARK system.
 pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
@@ -85,7 +84,10 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
         g: F,
         config: &StarkConfig,
     ) -> FriInstanceInfo<F, D> {
-        let no_blinding_oracle = FriOracleInfo { blinding: false };
+        let no_blinding_oracle = FriOracleInfo {
+            num_polys: Self::COLUMNS,
+            blinding: false,
+        };
         let mut oracle_indices = 0..;
 
         let trace_info =
@@ -132,7 +134,10 @@ pub trait Stark<F: RichField + Extendable<D>, const D: usize>: Sync {
         g: F,
         config: &StarkConfig,
     ) -> FriInstanceInfoTarget<D> {
-        let no_blinding_oracle = FriOracleInfo { blinding: false };
+        let no_blinding_oracle = FriOracleInfo {
+            num_polys: Self::COLUMNS,
+            blinding: false,
+        };
         let mut oracle_indices = 0..;
 
         let trace_info =
