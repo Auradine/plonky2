@@ -70,13 +70,10 @@ pub struct StarkProofWithPublicInputs<
     const D: usize,
 > {
     pub proof: StarkProof<F, C, D>,
-    // TODO: Maybe make it generic over a `S: Stark` and replace with `[F; S::PUBLIC_INPUTS]`.
-    pub public_inputs: Vec<F>,
 }
 
 pub struct StarkProofWithPublicInputsTarget<const D: usize> {
     pub proof: StarkProofTarget<D>,
-    pub public_inputs: Vec<Target>,
 }
 
 pub struct CompressedStarkProof<

@@ -32,7 +32,6 @@ pub fn prove<F, C, S, const D: usize>(
     stark: S,
     config: &StarkConfig,
     trace_poly_values: Vec<PolynomialValues<F>>,
-    public_inputs: [F; S::PUBLIC_INPUTS],
     timing: &mut TimingTree,
 ) -> Result<StarkProofWithPublicInputs<F, C, D>>
 where
@@ -40,7 +39,6 @@ where
     C: GenericConfig<D, F = F>,
     S: Stark<F, D>,
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
     [(); C::Hasher::HASH_SIZE]:,
 {
     let degree = trace_poly_values[0].len();
@@ -115,7 +113,6 @@ where
         &stark,
         &trace_commitment,
         &permutation_zs_commitment_challenges,
-        public_inputs,
         alphas,
         degree_bits,
         config,
@@ -187,10 +184,7 @@ where
         opening_proof,
     };
 
-    Ok(StarkProofWithPublicInputs {
-        proof,
-        public_inputs: public_inputs.to_vec(),
-    })
+    Ok(StarkProofWithPublicInputs { proof })
 }
 
 /// Computes the quotient polynomials `(sum alpha^i C_i(x)) / Z_H(x)` for `alpha` in `alphas`,
@@ -202,7 +196,6 @@ fn compute_quotient_polys<'a, F, P, C, S, const D: usize>(
         PolynomialBatch<F, C, D>,
         Vec<PermutationChallengeSet<F>>,
     )>,
-    public_inputs: [F; S::PUBLIC_INPUTS],
     alphas: Vec<F>,
     degree_bits: usize,
     config: &StarkConfig,
@@ -213,7 +206,6 @@ where
     C: GenericConfig<D, F = F>,
     S: Stark<F, D>,
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
 {
     let degree = 1 << degree_bits;
     let rate_bits = config.fri_config.rate_bits;
@@ -275,7 +267,6 @@ where
             let vars = StarkEvaluationVars {
                 local_values: &get_trace_values_packed(i_start),
                 next_values: &get_trace_values_packed(i_next_start),
-                public_inputs: &public_inputs,
             };
             let permutation_check_data = permutation_zs_commitment_challenges.as_ref().map(
                 |(permutation_zs_commitment, permutation_challenge_sets)| PermutationCheckVars {

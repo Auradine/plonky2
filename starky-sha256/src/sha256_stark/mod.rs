@@ -59,11 +59,10 @@ impl<F: RichField + Extendable<D>, const D: usize> Sha2CompressionStark<F, D> {
 
 impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2CompressionStark<F, D> {
     const COLUMNS: usize = NUM_COLS;
-    const PUBLIC_INPUTS: usize = 0;
 
     fn eval_packed_generic<FE, P, const D2: usize>(
         &self,
-        vars: StarkEvaluationVars<FE, P, { Self::COLUMNS }, { Self::PUBLIC_INPUTS }>,
+        vars: StarkEvaluationVars<FE, P, { Self::COLUMNS }>,
         yield_constr: &mut ConstraintConsumer<P>,
     ) where
         FE: FieldExtension<D2, BaseField = F>,
@@ -463,7 +462,7 @@ impl<F: RichField + Extendable<D>, const D: usize> Stark<F, D> for Sha2Compressi
     fn eval_ext_circuit(
         &self,
         _builder: &mut CircuitBuilder<F, D>,
-        _vars: StarkEvaluationTargets<D, { Self::COLUMNS }, { Self::PUBLIC_INPUTS }>,
+        _vars: StarkEvaluationTargets<D, { Self::COLUMNS }>,
         _yield_constr: &mut RecursiveConstraintConsumer<F, D>,
     ) {
         todo!()
@@ -690,7 +689,7 @@ mod tests {
         let stark = S::new();
         let trace = generator.into_polynomial_values();
         let mut timing = TimingTree::default();
-        let proof = prove::<F, C, S, D>(stark, &config, trace, [], &mut timing)?;
+        let proof = prove::<F, C, S, D>(stark, &config, trace, &mut timing)?;
 
         verify_stark_proof(stark, proof, &config)?;
 
@@ -727,7 +726,7 @@ mod tests {
         let config = StarkConfig::standard_fast_config();
         let stark = S::new();
         let mut timing = TimingTree::default();
-        let proof = prove::<F, C, S, D>(stark, &config, trace, [], &mut timing)?;
+        let proof = prove::<F, C, S, D>(stark, &config, trace, &mut timing)?;
 
         verify_stark_proof(stark, proof, &config)?;
 

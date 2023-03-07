@@ -29,10 +29,8 @@ pub fn verify_stark_proof<
 ) -> Result<()>
 where
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
     [(); C::Hasher::HASH_SIZE]:,
 {
-    ensure!(proof_with_pis.public_inputs.len() == S::PUBLIC_INPUTS);
     let degree_bits = proof_with_pis.proof.recover_degree_bits(config);
     let challenges = proof_with_pis.get_challenges(&stark, config, degree_bits);
     verify_stark_proof_with_challenges(stark, proof_with_pis, challenges, degree_bits, config)
@@ -52,14 +50,10 @@ pub(crate) fn verify_stark_proof_with_challenges<
 ) -> Result<()>
 where
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
     [(); C::Hasher::HASH_SIZE]:,
 {
     check_permutation_options(&stark, &proof_with_pis, &challenges)?;
-    let StarkProofWithPublicInputs {
-        proof,
-        public_inputs,
-    } = proof_with_pis;
+    let StarkProofWithPublicInputs { proof } = proof_with_pis;
     let StarkOpeningSet {
         local_values,
         next_values,
@@ -70,12 +64,6 @@ where
     let vars = StarkEvaluationVars {
         local_values: &local_values.to_vec().try_into().unwrap(),
         next_values: &next_values.to_vec().try_into().unwrap(),
-        public_inputs: &public_inputs
-            .into_iter()
-            .map(F::Extension::from_basefield)
-            .collect::<Vec<_>>()
-            .try_into()
-            .unwrap(),
     };
 
     let (l_1, l_last) = eval_l_1_and_l_last(degree_bits, challenges.stark_zeta);

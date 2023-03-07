@@ -37,9 +37,7 @@ pub fn verify_stark_proof_circuit<
 ) where
     C::Hasher: AlgebraicHasher<F>,
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
 {
-    assert_eq!(proof_with_pis.public_inputs.len(), S::PUBLIC_INPUTS);
     let degree_bits = proof_with_pis.proof.recover_degree_bits(inner_config);
     let challenges = with_context!(
         builder,
@@ -73,15 +71,11 @@ fn verify_stark_proof_with_challenges_circuit<
 ) where
     C::Hasher: AlgebraicHasher<F>,
     [(); S::COLUMNS]:,
-    [(); S::PUBLIC_INPUTS]:,
 {
     check_permutation_options(&stark, &proof_with_pis, &challenges).unwrap();
     let one = builder.one_extension();
 
-    let StarkProofWithPublicInputsTarget {
-        proof,
-        public_inputs,
-    } = proof_with_pis;
+    let StarkProofWithPublicInputsTarget { proof } = proof_with_pis;
     let StarkOpeningSetTarget {
         local_values,
         next_values,
@@ -92,12 +86,6 @@ fn verify_stark_proof_with_challenges_circuit<
     let vars = StarkEvaluationTargets {
         local_values: &local_values.to_vec().try_into().unwrap(),
         next_values: &next_values.to_vec().try_into().unwrap(),
-        public_inputs: &public_inputs
-            .into_iter()
-            .map(|t| builder.convert_to_ext(t))
-            .collect::<Vec<_>>()
-            .try_into()
-            .unwrap(),
     };
 
     let zeta_pow_deg = builder.exp_power_of_2_extension(challenges.stark_zeta, degree_bits);
@@ -200,11 +188,7 @@ pub fn add_virtual_stark_proof_with_pis<
     degree_bits: usize,
 ) -> StarkProofWithPublicInputsTarget<D> {
     let proof = add_virtual_stark_proof::<F, S, D>(builder, stark, config, degree_bits);
-    let public_inputs = builder.add_virtual_targets(S::PUBLIC_INPUTS);
-    StarkProofWithPublicInputsTarget {
-        proof,
-        public_inputs,
-    }
+    StarkProofWithPublicInputsTarget { proof }
 }
 
 pub fn add_virtual_stark_proof<F: RichField + Extendable<D>, S: Stark<F, D>, const D: usize>(
@@ -267,19 +251,8 @@ pub fn set_stark_proof_with_pis_target<F, C: GenericConfig<D, F = F>, W, const D
     C::Hasher: AlgebraicHasher<F>,
     W: Witness<F>,
 {
-    let StarkProofWithPublicInputs {
-        proof,
-        public_inputs,
-    } = stark_proof_with_pis;
-    let StarkProofWithPublicInputsTarget {
-        proof: pt,
-        public_inputs: pi_targets,
-    } = stark_proof_with_pis_target;
-
-    // Set public inputs.
-    for (&pi_t, &pi) in pi_targets.iter().zip_eq(public_inputs) {
-        witness.set_target(pi_t, pi);
-    }
+    let StarkProofWithPublicInputs { proof } = stark_proof_with_pis;
+    let StarkProofWithPublicInputsTarget { proof: pt } = stark_proof_with_pis_target;
 
     set_stark_proof_target(witness, pt, proof);
 }

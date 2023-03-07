@@ -36,7 +36,7 @@ fn main() {
 
     let stark = S::new();
     let mut timing = TimingTree::new("prove", Level::Debug);
-    let proof = prove::<F, C, S, D>(stark, &config, trace, [], &mut timing).unwrap();
+    let proof = prove::<F, C, S, D>(stark, &config, trace, &mut timing).unwrap();
     timing.print();
 
     verify_stark_proof(stark, proof, &config).unwrap();

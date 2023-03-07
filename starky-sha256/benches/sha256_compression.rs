@@ -41,7 +41,7 @@ fn bench_sha256_x16(c: &mut Criterion) {
         b.iter_batched(
             || trace.clone(),
             |trace| {
-                prove::<F, C, S, D>(stark, &config, trace, [], &mut timing).unwrap();
+                prove::<F, C, S, D>(stark, &config, trace, &mut timing).unwrap();
             },
             criterion::BatchSize::LargeInput,
         );
