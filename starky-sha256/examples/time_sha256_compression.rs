@@ -23,10 +23,9 @@ fn main() {
 
     let mut compressor = Sha2StarkCompressor::new();
     for _ in 0..NUM_HASHES {
-        let left = BytesHash::<32>::rand().0;
-        let right = BytesHash::<32>::rand().0;
+        let left = BytesHash::<64>::rand().0;
 
-        compressor.add_instance(left, right);
+        compressor.add_instance(left);
     }
 
     let trace = compressor.generate();

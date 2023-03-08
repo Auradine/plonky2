@@ -243,16 +243,14 @@ impl<F: Field> Sha2TraceGenerator<F> {
     fn gen_phase_0(
         &mut self,
         his: [u32; 8],
-        left_input: [u32; 8],
-        right_input: [u32; 8],
+        left_input: [u32; 16],
     ) -> ([u32; 16], [u32; 4], [u32; 4]) {
         let mut abcd = *array_ref![his, 0, 4];
         let mut efgh = *array_ref![his, 4, 4];
 
         let mut wis = [0; 16];
-        for i in 0..8 {
+        for i in 0..16 {
             wis[i] = left_input[i];
-            wis[i + 8] = right_input[i];
         }
         wis = rotl_wis(wis);
 
@@ -289,11 +287,8 @@ impl<F: Field> Sha2TraceGenerator<F> {
                 }
 
                 // load inputs
-                for j in 0..8 {
+                for j in 0..16 {
                     curr_row[input_i(j)] = F::from_canonical_u32(left_input[j])
-                        + F::from_canonical_u64(hash_idx as u64) * F::from_canonical_u64(1 << 32);
-
-                    curr_row[input_i(j + 8)] = F::from_canonical_u32(right_input[j])
                         + F::from_canonical_u64(hash_idx as u64) * F::from_canonical_u64(1 << 32);
                 }
 
@@ -417,9 +412,9 @@ impl<F: Field> Sha2TraceGenerator<F> {
         println!("hex_str = {}", hex_str);
     }
 
-    pub fn gen_hash(&mut self, left_input: [u32; 8], right_input: [u32; 8]) -> [u32; 8] {
+    pub fn gen_hash(&mut self, left_input: [u32; 16]) -> [u32; 8] {
         let his = HASH_IV;
-        let (wis, abcd, efgh) = self.gen_phase_0(his, left_input, right_input);
+        let (wis, abcd, efgh) = self.gen_phase_0(his, left_input);
         let (_wis, _abcd, _efgh, his) = self.gen_phase_1(wis, abcd, efgh, his);
         self.gen_last_step(his);
 
@@ -490,11 +485,10 @@ mod tests {
         let mut state = HASH_IV;
         compress256(&mut state, &[block_arr]);
 
-        let left_input = [0u32; 8];
-        let right_input = [0u32; 8];
+        let left_input = [0u32; 16];
         let mut generator = Sha2TraceGenerator::<F>::new(128);
 
-        let his = generator.gen_hash(left_input, right_input);
+        let his = generator.gen_hash(left_input);
 
         assert_eq!(his, state);
     }
@@ -511,11 +505,10 @@ mod tests {
         compress256(&mut state, &[block_arr]);
 
         let block: [u32; 16] = to_u32_array_be(block);
-        let left_input = *array_ref![block, 0, 8];
-        let right_input = *array_ref![block, 8, 8];
+        let left_input = *array_ref![block, 0, 16];
         let mut generator = Sha2TraceGenerator::<F>::new(128);
 
-        let his = generator.gen_hash(left_input, right_input);
+        let his = generator.gen_hash(left_input);
         assert_eq!(his, state);
     }
 
@@ -531,11 +524,10 @@ mod tests {
         compress256(&mut state, &[block_arr]);
 
         let block: [u32; 16] = to_u32_array_be(block);
-        let left_input = *array_ref![block, 0, 8];
-        let right_input = *array_ref![block, 8, 8];
+        let left_input = *array_ref![block, 0, 16];
         let mut generator = Sha2TraceGenerator::<F>::new(128);
 
-        let his = generator.gen_hash(left_input, right_input);
+        let his = generator.gen_hash(left_input);
 
         // ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
         assert_eq!(his, state);

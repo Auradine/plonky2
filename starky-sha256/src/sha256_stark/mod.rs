@@ -605,7 +605,7 @@ where
 }
 
 pub struct Sha2StarkCompressor {
-    inputs: Vec<([u32; 8], [u32; 8])>,
+    inputs: Vec<[u32; 16]>,
 }
 
 impl Sha2StarkCompressor {
@@ -613,19 +613,18 @@ impl Sha2StarkCompressor {
         Self { inputs: Vec::new() }
     }
 
-    pub fn add_instance(&mut self, left_input: [u8; 32], right_input: [u8; 32]) {
+    pub fn add_instance(&mut self, left_input: [u8; 64]) {
         let left = to_u32_array_be(left_input);
-        let right = to_u32_array_be(right_input);
 
-        self.inputs.push((left, right));
+        self.inputs.push(left);
     }
 
     /// returns the generated trace against which a proof may be generated
     pub fn generate<F: Field>(self) -> Vec<PolynomialValues<F>> {
         let max_rows = 1 << log2_ceil(self.inputs.len() * NUM_STEPS_PER_HASH);
         let mut generator = Sha2TraceGenerator::<F>::new(max_rows);
-        for (left, right) in self.inputs.into_iter() {
-            generator.gen_hash(left, right);
+        for left in self.inputs.into_iter() {
+            generator.gen_hash(left);
         }
 
         generator.into_polynomial_values()
@@ -675,15 +674,13 @@ mod tests {
         type F = <C as GenericConfig<D>>::F;
         type S = Sha2CompressionStark<F, D>;
 
-        let mut left_input = [0u32; 8];
-        let mut right_input = [0u32; 8];
-        for i in 0..8 {
+        let mut left_input = [0u32; 16];
+        for i in 0..16 {
             left_input[i] = i as u32;
-            right_input[i] = i as u32 + 8;
         }
 
         let mut generator = Sha2TraceGenerator::<F>::new(128);
-        generator.gen_hash(left_input, right_input);
+        generator.gen_hash(left_input);
 
         let config = StarkConfig::standard_fast_config();
         let stark = S::new();
@@ -703,24 +700,20 @@ mod tests {
         type F = <C as GenericConfig<D>>::F;
         type S = Sha2CompressionStark<F, D>;
 
-        let mut left_input = [0; 32];
-        let mut right_input = [0; 32];
-        for i in 0..32 {
+        let mut left_input = [0; 64];
+        for i in 0..64 {
             left_input[i] = i as u8;
-            right_input[i] = i as u8 + 32;
         }
 
         let mut compressor = Sha2StarkCompressor::new();
-        compressor.add_instance(left_input, right_input);
+        compressor.add_instance(left_input);
 
-        let mut left_input = [0; 32];
-        let mut right_input = [0; 32];
-        for i in 0..32 {
+        let mut left_input = [0; 64];
+        for i in 0..64 {
             left_input[i] = i as u8 + 64;
-            right_input[i] = i as u8 + 96;
         }
 
-        compressor.add_instance(left_input, right_input);
+        compressor.add_instance(left_input);
         let trace = compressor.generate();
 
         let config = StarkConfig::standard_fast_config();
