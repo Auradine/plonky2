@@ -571,7 +571,7 @@ mod tests {
         let block: [u32; 16 * N] = to_u32_array_be(block);
         let left_input = *array_ref![block, 0, 16 * N];
         assert!(8192 > 128 * N);
-        let mut generator = Sha2TraceGenerator::<F>::new(4096);
+        let mut generator = Sha2TraceGenerator::<F>::new(8192);
 
         let his = generator.gen_hash::<N>(left_input);
 
