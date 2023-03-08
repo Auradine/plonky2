@@ -1,6 +1,8 @@
 #![allow(clippy::many_single_char_names)]
 
 use core::convert::TryInto;
+use std::fmt::Write;
+use std::num::ParseIntError;
 
 use arrayref::{array_mut_ref, array_ref};
 use plonky2_field::polynomial::PolynomialValues;
@@ -9,8 +11,6 @@ use plonky2_field::types::Field;
 use super::constants::{HASH_IV, ROUND_CONSTANTS};
 use crate::sha256_stark::layout::*;
 use crate::util::trace_rows_to_poly_values;
-
-use std::{fmt::Write, num::ParseIntError};
 
 pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
     (0..s.len())
@@ -46,8 +46,6 @@ impl<F: Field> Sha2Trace<F> {
 pub struct Sha2TraceGenerator<F: Field> {
     trace: Sha2Trace<F>,
     hash_idx: usize,
-    left_input: [u32; 8],
-    right_input: [u32; 8],
     step: usize,
 }
 
@@ -56,8 +54,6 @@ impl<F: Field> Sha2TraceGenerator<F> {
         Sha2TraceGenerator {
             trace: Sha2Trace::new(max_rows),
             hash_idx: 1, // hash_idx is 1-indexed
-            left_input: [0; 8],
-            right_input: [0; 8],
             step: 0,
         }
     }
@@ -244,9 +240,12 @@ impl<F: Field> Sha2TraceGenerator<F> {
         }
     }
     // returns wis, abcd, efgh
-    fn gen_phase_0(&mut self, his: [u32; 8]) -> ([u32; 16], [u32; 4], [u32; 4]) {
-        let left_input = self.left_input;
-        let right_input = self.right_input;
+    fn gen_phase_0(
+        &mut self,
+        his: [u32; 8],
+        left_input: [u32; 8],
+        right_input: [u32; 8],
+    ) -> ([u32; 16], [u32; 4], [u32; 4]) {
         let mut abcd = *array_ref![his, 0, 4];
         let mut efgh = *array_ref![his, 4, 4];
 
@@ -404,12 +403,12 @@ impl<F: Field> Sha2TraceGenerator<F> {
     fn gen_last_step(&mut self, his: [u32; 8]) {
         let (curr_row, hash_idx, step) = self.get_next_row();
         Self::gen_misc(curr_row, step, hash_idx);
-        let mut hex_str:String = "".to_owned();
+        let mut hex_str: String = "".to_owned();
         for i in 0..8 {
             curr_row[output_i(i)] = F::from_canonical_u32(his[i])
                 + F::from_canonical_u64(hash_idx as u64) * F::from_canonical_u64(1 << 32);
             let my_str = format!("{:?}", curr_row[output_i(i)]);
-            let my_res =my_str.parse::<i64>();
+            let my_res = my_str.parse::<i64>();
             let my_int = my_res.unwrap();
             let hex_str0 = format!("{:x}", my_int & 0xffffffff);
             hex_str = format!("{}{}", hex_str, hex_str0);
@@ -419,11 +418,8 @@ impl<F: Field> Sha2TraceGenerator<F> {
     }
 
     pub fn gen_hash(&mut self, left_input: [u32; 8], right_input: [u32; 8]) -> [u32; 8] {
-        self.left_input = left_input;
-        self.right_input = right_input;
-
         let his = HASH_IV;
-        let (wis, abcd, efgh) = self.gen_phase_0(his);
+        let (wis, abcd, efgh) = self.gen_phase_0(his, left_input, right_input);
         let (_wis, _abcd, _efgh, his) = self.gen_phase_1(wis, abcd, efgh, his);
         self.gen_last_step(his);
 
@@ -523,7 +519,6 @@ mod tests {
         assert_eq!(his, state);
     }
 
-    
     #[test]
     fn test_hash_of_abc() {
         let block0 = decode_hex("61626380000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018").unwrap();
@@ -542,7 +537,7 @@ mod tests {
 
         let his = generator.gen_hash(left_input, right_input);
 
-    // ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+        // ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
         assert_eq!(his, state);
     }
 }
