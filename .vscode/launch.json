@@ -1,0 +1,722 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_ecdsa'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_ecdsa"
+                ],
+                "filter": {
+                    "name": "plonky2_ecdsa",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_evm'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "plonky2_evm",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'assemble'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=assemble",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "assemble",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'assemble'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=assemble",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "assemble",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'empty_txn_list'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=empty_txn_list",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "empty_txn_list",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'basic_smart_contract'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=basic_smart_contract",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "basic_smart_contract",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'simple_transfer'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=simple_transfer",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "simple_transfer",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'stack_manipulation'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=stack_manipulation",
+                    "--package=plonky2_evm"
+                ],
+                "filter": {
+                    "name": "stack_manipulation",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_field'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_field"
+                ],
+                "filter": {
+                    "name": "plonky2_field",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_insertion'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_insertion"
+                ],
+                "filter": {
+                    "name": "plonky2_insertion",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_maybe_rayon'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_maybe_rayon"
+                ],
+                "filter": {
+                    "name": "plonky2_maybe_rayon",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "plonky2",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'generate_constants'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=generate_constants",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "generate_constants",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'generate_constants'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=generate_constants",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "generate_constants",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'bench_recursion'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=bench_recursion",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "bench_recursion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'bench_recursion'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=bench_recursion",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "bench_recursion",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'fibonacci'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=fibonacci",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "fibonacci",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'fibonacci'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=fibonacci",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "fibonacci",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'square_root'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=square_root",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "square_root",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'square_root'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=square_root",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "square_root",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'factorial'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=factorial",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "factorial",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'factorial'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=factorial",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "factorial",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'field_arithmetic'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=field_arithmetic",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "field_arithmetic",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'ffts'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=ffts",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "ffts",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'hashing'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=hashing",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "hashing",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'merkle'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=merkle",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "merkle",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'transpose'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=transpose",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "transpose",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'reverse_index_bits'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=reverse_index_bits",
+                    "--package=plonky2"
+                ],
+                "filter": {
+                    "name": "reverse_index_bits",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'starky'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=starky"
+                ],
+                "filter": {
+                    "name": "starky",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_u32'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_u32"
+                ],
+                "filter": {
+                    "name": "plonky2_u32",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_util'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_util"
+                ],
+                "filter": {
+                    "name": "plonky2_util",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'plonky2_waksman'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=plonky2_waksman"
+                ],
+                "filter": {
+                    "name": "plonky2_waksman",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'starky-sha256'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "starky-sha256",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'h3'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=h3",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "h3",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'h3'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=h3",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "h3",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'time_sha256_compression'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=time_sha256_compression",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "time_sha256_compression",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'time_sha256_compression'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=time_sha256_compression",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "time_sha256_compression",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug benchmark 'sha256_compression'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bench=sha256_compression",
+                    "--package=starky-sha256"
+                ],
+                "filter": {
+                    "name": "sha256_compression",
+                    "kind": "bench"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
