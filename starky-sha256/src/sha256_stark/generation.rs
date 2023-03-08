@@ -10,6 +10,22 @@ use super::constants::{HASH_IV, ROUND_CONSTANTS};
 use crate::sha256_stark::layout::*;
 use crate::util::trace_rows_to_poly_values;
 
+use std::{fmt::Write, num::ParseIntError};
+
+pub fn decode_hex(s: &str) -> Result<Vec<u8>, ParseIntError> {
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16))
+        .collect()
+}
+pub fn encode_hex(bytes: &[u8]) -> String {
+    let mut s = String::with_capacity(bytes.len() * 2);
+    for &b in bytes {
+        write!(&mut s, "{:02x}", b).unwrap();
+    }
+    s
+}
+
 fn is_power_of_two(n: u64) -> bool {
     n & (n - 1) == 0
 }
@@ -388,10 +404,18 @@ impl<F: Field> Sha2TraceGenerator<F> {
     fn gen_last_step(&mut self, his: [u32; 8]) {
         let (curr_row, hash_idx, step) = self.get_next_row();
         Self::gen_misc(curr_row, step, hash_idx);
+        let mut hex_str:String = "".to_owned();
         for i in 0..8 {
             curr_row[output_i(i)] = F::from_canonical_u32(his[i])
                 + F::from_canonical_u64(hash_idx as u64) * F::from_canonical_u64(1 << 32);
+            let my_str = format!("{:?}", curr_row[output_i(i)]);
+            let my_res =my_str.parse::<i64>();
+            let my_int = my_res.unwrap();
+            let hex_str0 = format!("{:x}", my_int & 0xffffffff);
+            hex_str = format!("{}{}", hex_str, hex_str0);
+            // println!("hex_str0 = {}", hex_str0);
         }
+        println!("hex_str = {}", hex_str);
     }
 
     pub fn gen_hash(&mut self, left_input: [u32; 8], right_input: [u32; 8]) -> [u32; 8] {
@@ -496,6 +520,29 @@ mod tests {
         let mut generator = Sha2TraceGenerator::<F>::new(128);
 
         let his = generator.gen_hash(left_input, right_input);
+        assert_eq!(his, state);
+    }
+
+    
+    #[test]
+    fn test_hash_of_abc() {
+        let block0 = decode_hex("61626380000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018").unwrap();
+        let mut block = [0u8; 64];
+        for i in 0..64 {
+            block[i] = block0[i];
+        }
+        let block_arr = GenericArray::<u8, U64>::from(block);
+        let mut state = HASH_IV;
+        compress256(&mut state, &[block_arr]);
+
+        let block: [u32; 16] = to_u32_array_be(block);
+        let left_input = *array_ref![block, 0, 8];
+        let right_input = *array_ref![block, 8, 8];
+        let mut generator = Sha2TraceGenerator::<F>::new(128);
+
+        let his = generator.gen_hash(left_input, right_input);
+
+    // ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
         assert_eq!(his, state);
     }
 }
