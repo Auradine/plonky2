@@ -398,18 +398,22 @@ impl<F: Field> Sha2TraceGenerator<F> {
     fn gen_last_step(&mut self, his: [u32; 8]) {
         let (curr_row, hash_idx, step) = self.get_next_row();
         Self::gen_misc(curr_row, step, hash_idx);
-        let mut hex_str: String = "".to_owned();
         for i in 0..8 {
             curr_row[output_i(i)] = F::from_canonical_u32(his[i])
                 + F::from_canonical_u64(hash_idx as u64) * F::from_canonical_u64(1 << 32);
-            let my_str = format!("{:?}", curr_row[output_i(i)]);
-            let my_res = my_str.parse::<i64>();
-            let my_int = my_res.unwrap();
-            let hex_str0 = format!("{:x}", my_int & 0xffffffff);
-            hex_str = format!("{}{}", hex_str, hex_str0);
-            // println!("hex_str0 = {}", hex_str0);
         }
-        println!("hex_str = {}", hex_str);
+
+        // debug code
+        // let mut hex_str: String = "".to_owned();
+        // for i in 0..8 {
+        //     let my_str = format!("{:?}", curr_row[output_i(i)]);
+        //     let my_res = my_str.parse::<i64>();
+        //     let my_int = my_res.unwrap();
+        //     let hex_str0 = format!("{:x}", my_int & 0xffffffff);
+        //     hex_str = format!("{}{}", hex_str, hex_str0);
+        //     // println!("hex_str0 = {}", hex_str0);
+        // }
+        // println!("hex_str = {}", hex_str);
     }
 
     pub fn gen_hash<const N: usize>(&mut self, left_input: [u32; 16 * N]) -> [u32; 8] {
@@ -537,6 +541,13 @@ mod tests {
         let his = generator.gen_hash::<1>(left_input);
 
         // ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+        print!("\nfinal hash : ");
+        for i in 0..8 {
+            let x = his[i];
+            print!("{:x}", x);
+        }
+        println!("");
+
         assert_eq!(his, state);
     }
 
