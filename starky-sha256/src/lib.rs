@@ -20,4 +20,3 @@ pub mod vars;
 pub mod verifier;
 
 pub mod sha256_stark;
-pub mod tree_stark;
