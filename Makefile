@@ -1,7 +1,8 @@
 all: bench
 
 bench:
-	RUST_BACKTRACE=full cargo bench --bench sha256_compression
+	# RUST_BACKTRACE=full cargo bench --bench sha256_compression
+	RUST_BACKTRACE=full cargo bench --bench sha256_h3
 
 test:
 	RUST_BACKTRACE=full cargo test sha256_stark
