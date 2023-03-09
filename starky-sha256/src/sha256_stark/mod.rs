@@ -624,7 +624,7 @@ impl Sha2StarkCompressor {
         let max_rows = 1 << log2_ceil(self.inputs.len() * NUM_STEPS_PER_HASH);
         let mut generator = Sha2TraceGenerator::<F>::new(max_rows);
         for left in self.inputs.into_iter() {
-            generator.gen_hash::<1>(left);
+            generator.gen_hash::<1>(HASH_IV, left);
         }
 
         generator.into_polynomial_values()
@@ -680,7 +680,7 @@ mod tests {
         }
 
         let mut generator = Sha2TraceGenerator::<F>::new(128);
-        generator.gen_hash::<1>(left_input);
+        generator.gen_hash::<1>(HASH_IV, left_input);
 
         let config = StarkConfig::standard_fast_config();
         let stark = S::new();

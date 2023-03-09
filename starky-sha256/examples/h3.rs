@@ -1,11 +1,10 @@
-use arrayref::array_ref;
 use log::{Level, LevelFilter};
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
 use plonky2::util::timing::TimingTree;
 use starky_sha256::config::StarkConfig;
 use starky_sha256::prover::prove;
-use starky_sha256::sha256_stark::generation::{decode_hex, to_u32_array_be, Sha2TraceGenerator};
-use starky_sha256::sha256_stark::Sha2CompressionStark;
+use starky_sha256::sha256_stark::generation::{decode_hex};
+use starky_sha256::sha256_stark::{Sha2CompressionStark, Sha2StarkCompressor};
 use starky_sha256::verifier::verify_stark_proof;
 
 const D: usize = 2;
@@ -23,26 +22,19 @@ fn main() {
     assert!(block0.len() % 64 == 0);
     assert!((block0.len() / 64) == 49);
     const N: usize = 49;
-
-    let mut block = [0u8; 64 * N];
-    for i in 0..64 * N {
-        block[i] = block0[i];
-    }
-
-    let block: [u32; 16 * N] = to_u32_array_be::<{ 16 * N }>(block);
-    let left_input = *array_ref![block, 0, 16 * N];
     assert!(8192 > 128 * N);
-    let mut generator = Sha2TraceGenerator::<F>::new(8192);
 
-    let his = generator.gen_hash::<N>(left_input);
-    print!("\nfinal hash : ");
-    for i in 0..8 {
-        let x = his[i];
-        print!("{:x}", x);
+    let mut compressor = Sha2StarkCompressor::new();
+    for i in 0..N {
+        let mut left_input0: [u8; 64] = [0 as u8; 64];
+        for j in 0..16 {
+            left_input0[j] = block0[i * 64 + j];
+        }
+
+        compressor.add_instance(left_input0);
     }
-    println!("");
 
-    let trace = generator.into_polynomial_values();
+    let trace = compressor.generate();
 
     let mut config = StarkConfig::standard_fast_config();
     config.fri_config.cap_height = 4;
@@ -54,5 +46,5 @@ fn main() {
 
     let r = verify_stark_proof(stark, proof, &config);
     println!("{:?}", r);
-    // r.unwrap();
+    r.unwrap();
 }
