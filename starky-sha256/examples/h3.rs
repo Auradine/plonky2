@@ -1,9 +1,11 @@
+use std::fs::File;
+
 use log::{Level, LevelFilter};
 use plonky2::plonk::config::{GenericConfig, PoseidonGoldilocksConfig};
 use plonky2::util::timing::TimingTree;
 use starky_sha256::config::StarkConfig;
 use starky_sha256::prover::prove;
-use starky_sha256::sha256_stark::generation::{decode_hex};
+use starky_sha256::sha256_stark::generation::decode_hex;
 use starky_sha256::sha256_stark::{Sha2CompressionStark, Sha2StarkCompressor};
 use starky_sha256::verifier::verify_stark_proof;
 
@@ -43,6 +45,14 @@ fn main() {
     let mut timing = TimingTree::new("prove", Level::Debug);
     let proof = prove::<F, C, S, D>(stark, &config, trace, &mut timing).unwrap();
     timing.print();
+
+    // Encode to something implementing `Write`
+    let mut f = File::create("./proof.bin").unwrap();
+    bincode::serialize_into(&mut f, &proof).unwrap();
+
+    let encoded = bincode::serialize(&proof).unwrap();
+    println!("encoded.len() = {}", encoded.len());
+    // let decoded: StarkProofWithPublicInputs<F, C, D> = bincode::deserialize(&encoded[..]).unwrap();
 
     let r = verify_stark_proof(stark, proof, &config);
     println!("{:?}", r);
