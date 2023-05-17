@@ -9,7 +9,7 @@ use starky_sha256::sha256_stark::generation::decode_hex;
 use starky_sha256::sha256_stark::{Sha2CompressionStark, Sha2StarkCompressor};
 use starky_sha256::verifier::verify_stark_proof;
 
-const D: usize = 2;
+const D: usize = 3;
 type C = PoseidonGoldilocksConfig;
 type F = <C as GenericConfig<D>>::F;
 type S = Sha2CompressionStark<F, D>;
