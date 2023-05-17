@@ -19,11 +19,11 @@ impl StarkConfig {
             security_bits: 100,
             num_challenges: 2,
             fri_config: FriConfig {
-                rate_bits: 1,
+                rate_bits: 2,
                 cap_height: 4,
                 proof_of_work_bits: 10,
                 reduction_strategy: FriReductionStrategy::ConstantArityBits(4, 5),
-                num_query_rounds: 90,
+                num_query_rounds: 50,
             },
         }
     }
